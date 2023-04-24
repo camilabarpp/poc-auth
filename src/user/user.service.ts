@@ -7,12 +7,13 @@ import {
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from '../dto/user-create-dto';
+import { CreateUserDto } from './dto/user-create-dto';
 import { UserRole } from '../entities/user-enum';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { CredentialsDto } from '../dto/credentials-dto';
-import { UserUpdateDto } from '../dto/user-update-dto';
+import { CredentialsDto } from './dto/credentials-dto';
+import { UserUpdateDto } from './dto/user-update-dto';
+import { FindUsersQueryDto } from './dto/find-users-query.dto';
 
 @Injectable()
 export class UserService {
@@ -20,6 +21,52 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+
+  async findUsers(
+    queryDto: FindUsersQueryDto,
+  ): Promise<{ users: User[]; total: number }> {
+    return await this.findUser(queryDto);
+  }
+
+  async findUser(
+    queryDto: FindUsersQueryDto,
+  ): Promise<{ users: User[]; total: number }> {
+    const {
+      email,
+      name,
+      status = true,
+      role,
+      page = 1,
+      limit = 100,
+      sort,
+    } = queryDto;
+
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.status = :status', { status });
+
+    if (email) {
+      query.andWhere('user.email LIKE :email', { email: `%${email}%` });
+    }
+
+    if (name) {
+      query.andWhere('user.name LIKE :name', { name: `%${name}%` });
+    }
+
+    if (role) {
+      query.andWhere('user.role = :role', { role });
+    }
+
+    query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .orderBy(sort ? JSON.parse(sort) : undefined)
+      .select(['user.name', 'user.email', 'user.role', 'user.status']);
+
+    const [users, total] = await query.getManyAndCount();
+
+    return { users, total };
+  }
 
   async findUserById(id: string): Promise<User> {
     const user = await this.userRepository.findOne({
