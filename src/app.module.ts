@@ -4,8 +4,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RegisterModule } from './register/register.module';
-import { RegisterService } from './register/register.service';
-import { RegisterController } from './register/register.controller';
 
 @Module({
   imports: [

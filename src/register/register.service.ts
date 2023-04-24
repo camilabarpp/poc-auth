@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  InternalServerErrorException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +6,7 @@ import { CreateUserDto } from '../dto/user-create-dto';
 import { UserRole } from '../entities/user-enum';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { CredentialsDto } from '../dto/credentials-dto';
 
 @Injectable()
 export class RegisterService {
@@ -18,14 +14,6 @@ export class RegisterService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-
-  async createAdminUser(createUserDto: CreateUserDto): Promise<User> {
-    if (createUserDto.password != createUserDto.passwordConfirmation) {
-      throw new UnprocessableEntityException('As senhas não conferem');
-    } else {
-      return this.createUser(createUserDto, UserRole.ADMIN);
-    }
-  }
 
   async createUser(
     createUserDto: CreateUserDto,
@@ -47,13 +35,21 @@ export class RegisterService {
       delete user.salt;
       return user;
     } catch (error) {
-      if (error.code.toString() === '23505') {
-        throw new ConflictException('Endereço de email já está em uso');
-      } else {
-        throw new InternalServerErrorException(
-          'Erro ao salvar o usuário no banco de dados',
-        );
-      }
+      const errorMessage = `Error to save on database! ${error.message}`;
+      throw new InternalServerErrorException(errorMessage);
+    }
+  }
+
+  async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {
+    const { email, password } = credentialsDto;
+    const user = await this.userRepository.findOne({
+      where: { email, status: true },
+    });
+
+    if (user && (await user.checkPassword(password))) {
+      return user;
+    } else {
+      return null;
     }
   }
 

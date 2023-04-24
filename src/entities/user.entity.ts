@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import * as bcrypt from 'bcrypt';
 
 @Entity({ name: 'poc-auth' })
 @Unique(['email'])
@@ -35,10 +36,6 @@ export class User {
   @ApiProperty({ description: 'The recoverToken of the person' })
   recoverToken: string;
 
-  // @Column({ nullable: false, type: 'varchar', length: 3 })
-  // @ApiProperty({ description: 'The age of the person' })
-  // age: string;
-
   @Column({ nullable: false, type: 'varchar', length: 200 })
   @ApiProperty({ description: 'The email of the person' })
   email: string;
@@ -58,4 +55,9 @@ export class User {
   @Column({ nullable: false })
   @ApiProperty({ description: 'The salt of the person' })
   salt: string;
+
+  async checkPassword(password: string): Promise<boolean> {
+    const hash = await bcrypt.hash(password, this.salt);
+    return hash === this.password;
+  }
 }
