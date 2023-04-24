@@ -1,4 +1,4 @@
-import { UserRole } from '../../entities/user-enum';
+import { UserRole } from '../entities/user-enum';
 import { IsOptional, IsString } from 'class-validator';
 
 export class UserUpdateDto {

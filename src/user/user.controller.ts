@@ -8,22 +8,19 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/user-create-dto';
 import { ReturnUserDto } from './dto/user-return-dto';
 import { Role } from '../auth/role.decorator';
-import { UserRole } from '../entities/user-enum';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from '../auth/roles.guard';
+import { UserRole } from './entities/user-enum';
 import { UserUpdateDto } from './dto/user-update-dto';
 import { GetUser } from '../auth/get-user.decorator';
-import { User } from '../entities/user.entity';
+import { User } from './entities/user.entity';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 
 @Controller('signUp')
-@UseGuards(AuthGuard(), RolesGuard)
+// @UseGuards(AuthGuard(), RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

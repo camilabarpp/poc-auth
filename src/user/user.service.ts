@@ -4,22 +4,24 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { User } from '../entities/user.entity';
+import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/user-create-dto';
-import { UserRole } from '../entities/user-enum';
+import { UserRole } from './entities/user-enum';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { CredentialsDto } from './dto/credentials-dto';
 import { UserUpdateDto } from './dto/user-update-dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private mailerService: MailerService,
   ) {}
 
   async findUsers(
@@ -94,11 +96,46 @@ export class UserService {
     }
   }
 
+  // async createUser(createUserDto: CreateUserDto): Promise<User> {
+  //   if (createUserDto.password != createUserDto.passwordConfirmation) {
+  //     throw new UnprocessableEntityException('Passwords do not match');
+  //   } else {
+  //     const user = await this.create(createUserDto, UserRole.USER);
+  //     const mail = {
+  //       to: user.email,
+  //       from: 'noreply@application.com',
+  //       subject: 'Email confirmation',
+  //       template:
+  //         '/home/forttiori/Documentos/NestJS/poc-auth/src/templates/email-confirmation.hbs',
+  //       context: {
+  //         token: user.confirmationToken,
+  //       },
+  //     };
+  //     // await this.mailerService.sendMail(mail);
+  //     await this.mailerService.sendMail({
+  //       to: user.email,
+  //       subject: 'Email confirmation',
+  //     });
+  //     return user;
+  //   }
+  // }
+
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('Passwords do not match');
     } else {
-      return await this.create(createUserDto, UserRole.USER);
+      const user = await this.create(createUserDto, UserRole.USER);
+      const mail = {
+        to: user.email,
+        from: 'noreply@application.com',
+        subject: 'Email confirmation',
+        template: 'email-confirmation',
+        context: {
+          token: user.confirmationToken,
+        },
+      };
+      await this.mailerService.sendMail(mail);
+      return user;
     }
   }
 
@@ -143,6 +180,16 @@ export class UserService {
       const errorMessage = `Error to save on database! ${error.message}`;
       throw new InternalServerErrorException(errorMessage);
     }
+  }
+
+  private async sendConfirmationEmail(user: User): Promise<void> {
+    const mail = {
+      to: user.email,
+      from: 'noreply@application.com',
+      subject: 'Email confirmation',
+      template: '/src/templates/email-confirmation.hbs',
+    };
+    await this.mailerService.sendMail(mail);
   }
 
   async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {

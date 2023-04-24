@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../entities/user.entity';
+import { User } from './entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from '../auth/jwt.strategy';
+import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 
 @Module({
   imports: [
