@@ -11,25 +11,25 @@ import { RolesGuard } from '../auth/roles.guard';
 export class RegisterController {
   constructor(private readonly registerService: RegisterService) {}
 
-  // @Post('user')
-  // async signUp(@Body() createUserDto: CreateUserDto): Promise<ReturnUserDto> {
-  //   const user = await this.authService.createUser(createUserDto);
-  //   return {
-  //     user,
-  //     message: 'User created successfully',
-  //   };
-  // }
-  //
-  // @Post('admin')
-  // @Role(UserRole.ADMIN)
-  // @UseGuards(AuthGuard(), RolesGuard)
-  // async createAdminUser(
-  //     @Body() createUserDto: CreateUserDto,
-  // ): Promise<ReturnUserDto> {
-  //   const user = await this.authService.createAdmin(createUserDto);
-  //   return {
-  //     user,
-  //     message: 'Admin created successfully',
-  //   };
-  // }
+  @Post('user')
+  async signUp(@Body() createUserDto: CreateUserDto): Promise<ReturnUserDto> {
+    const user = await this.registerService.createUser(createUserDto);
+    return {
+      user,
+      message: 'User created successfully',
+    };
+  }
+
+  @Post('admin')
+  @Role(UserRole.ADMIN)
+  @UseGuards(AuthGuard(), RolesGuard)
+  async createAdminUser(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<ReturnUserDto> {
+    const user = await this.registerService.createAdmin(createUserDto);
+    return {
+      user,
+      message: 'Admin created successfully',
+    };
+  }
 }

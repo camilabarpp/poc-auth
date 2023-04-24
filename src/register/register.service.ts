@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { User } from '../entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -15,25 +19,43 @@ export class RegisterService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser(
-    createUserDto: CreateUserDto,
-    role: UserRole,
-  ): Promise<User> {
-    const { email, name, password } = createUserDto;
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    if (createUserDto.password != createUserDto.passwordConfirmation) {
+      throw new UnprocessableEntityException('Passwords do not match');
+    } else {
+      return await this.create(createUserDto, UserRole.USER);
+    }
+  }
 
-    const user = new User();
-    user.email = email;
-    user.name = name;
-    user.role = role;
-    user.status = true;
-    user.confirmationToken = crypto.randomBytes(32).toString('hex');
-    user.salt = await bcrypt.genSalt();
-    user.password = await this.hashPassword(password, user.salt);
+  async createAdmin(createUserDto: CreateUserDto): Promise<User> {
+    if (createUserDto.password != createUserDto.passwordConfirmation) {
+      throw new UnprocessableEntityException('Passwords do not match');
+    } else {
+      return this.create(createUserDto, UserRole.ADMIN);
+    }
+  }
+
+  async create(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
+    const { email, name, password } = createUserDto;
+    const saltRounds = 10;
+    const salt = await bcrypt.genSalt(saltRounds);
+
+    const hash = await bcrypt.hash(password, salt);
+
+    const newUser = new User();
+    newUser.name = name;
+    newUser.email = email;
+    newUser.password = hash;
+    newUser.role = role;
+    newUser.status = true;
+    newUser.confirmationToken = crypto.randomBytes(32).toString('hex');
+    newUser.salt = salt;
+
     try {
-      await this.userRepository.save(user);
-      delete user.password;
-      delete user.salt;
-      return user;
+      await this.userRepository.save(newUser);
+      delete newUser.password;
+      delete newUser.salt;
+      return newUser;
     } catch (error) {
       const errorMessage = `Error to save on database! ${error.message}`;
       throw new InternalServerErrorException(errorMessage);
@@ -51,9 +73,5 @@ export class RegisterService {
     } else {
       return null;
     }
-  }
-
-  private async hashPassword(password: string, salt: string): Promise<string> {
-    return bcrypt.hash(password, salt);
   }
 }
