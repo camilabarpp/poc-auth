@@ -10,11 +10,13 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/user-create-dto';
 import { UserRole } from './entities/user-enum';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
-import { CredentialsDto } from './dto/credentials-dto';
+import { CredentialsDto } from '../auth/dto/credentials-dto';
 import { UserUpdateDto } from './dto/user-update-dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { MailerService } from '@nestjs-modules/mailer';
+import * as jwt from 'jsonwebtoken';
+
+const jwtSecret = 'super-secret';
 
 @Injectable()
 export class UserService {
@@ -48,11 +50,11 @@ export class UserService {
       .where('user.status = :status', { status });
 
     if (email) {
-      query.andWhere('user.email LIKE :email', { email: `%${email}%` });
+      query.andWhere('user.email LIKE :email', { email: `${email}%` });
     }
 
     if (name) {
-      query.andWhere('user.name LIKE :name', { name: `%${name}%` });
+      query.andWhere('user.name LIKE :name', { name: `${name}%` });
     }
 
     if (role) {
@@ -76,55 +78,28 @@ export class UserService {
       select: ['email', 'name', 'role', 'id'],
     });
 
-    if (!user) throw new NotFoundException('User not found');
-
+    if (!user)
+      throw new NotFoundException('No user was found with the given ID: ' + id);
     return user;
   }
 
   async updateUser(updateUserDto: UserUpdateDto, id: string): Promise<User> {
-    const user = await this.findUserById(id);
-    const { name, email, role, status } = updateUserDto;
-    user.name = name ? name : user.name;
-    user.email = email ? email : user.email;
-    user.role = role ? role : user.role;
-    user.status = status === undefined ? user.status : status;
-
+    await this.userRepository.update(id, updateUserDto);
     try {
-      return await this.userRepository.save(user);
+      return await this.findUserById(id);
     } catch (error) {
       throw new InternalServerErrorException('Error saving data to database');
     }
   }
 
-  // async createUser(createUserDto: CreateUserDto): Promise<User> {
-  //   if (createUserDto.password != createUserDto.passwordConfirmation) {
-  //     throw new UnprocessableEntityException('Passwords do not match');
-  //   } else {
-  //     const user = await this.create(createUserDto, UserRole.USER);
-  //     const mail = {
-  //       to: user.email,
-  //       from: 'noreply@application.com',
-  //       subject: 'Email confirmation',
-  //       template:
-  //         '/home/forttiori/Documentos/NestJS/poc-auth/src/templates/email-confirmation.hbs',
-  //       context: {
-  //         token: user.confirmationToken,
-  //       },
-  //     };
-  //     // await this.mailerService.sendMail(mail);
-  //     await this.mailerService.sendMail({
-  //       to: user.email,
-  //       subject: 'Email confirmation',
-  //     });
-  //     return user;
-  //   }
-  // }
-
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('Passwords do not match');
     } else {
-      const user = await this.create(createUserDto, UserRole.USER);
+      const user = await this.createAndEncryptPassword(
+        createUserDto,
+        UserRole.USER,
+      );
       const mail = {
         to: user.email,
         from: 'noreply@application.com',
@@ -143,53 +118,79 @@ export class UserService {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('Passwords do not match');
     } else {
-      return this.create(createUserDto, UserRole.ADMIN);
+      return this.createAndEncryptPassword(createUserDto, UserRole.ADMIN);
     }
   }
 
   async deleteUser(id: string) {
-    const result = await this.userRepository.delete(id);
+    const result = await this.findUserById(id);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`No user was found with the given ID: ${id}`);
-    }
+    // if (!result) {
+    //   throw new NotFoundException(`No user was found with the given ID: ${id}`);
+    // } else {
+    // }
+    await this.userRepository.delete(id);
+    // await this.findUserById(id);
+    // try {
+    //   return await this.userRepository.delete(id);
+    // } catch (error) {
+    //   throw new InternalServerErrorException(
+    //     'No user was found with the given ID: ${id}',
+    //   );
+    // }
   }
 
-  async create(createUserDto: CreateUserDto, role: UserRole): Promise<User> {
-    const { email, name, password } = createUserDto;
-    const saltRounds = 10;
-    const salt = await bcrypt.genSalt(saltRounds);
+  async changePassword(id: string, password: string) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    user.salt = await bcrypt.genSalt();
+    user.password = await bcrypt.hash(password, user.salt);
+    user.recoverToken = null;
+    await this.userRepository.save(user);
+  }
 
+  private async generateHash(
+    password: string,
+  ): Promise<{ salt: string; hash: string }> {
+    const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(password, salt);
+    return { salt, hash };
+  }
 
-    const newUser = new User();
-    newUser.name = name;
-    newUser.email = email;
-    newUser.password = hash;
-    newUser.role = role;
-    newUser.status = true;
-    newUser.confirmationToken = crypto.randomBytes(32).toString('hex');
-    newUser.salt = salt;
+  async createAndEncryptPassword(
+    createUserDto: CreateUserDto,
+    role: UserRole,
+  ): Promise<User> {
+    const { email, name, password } = createUserDto;
+
+    const { salt, hash } = await this.generateHash(password);
+
+    const newUser = this.userRepository.create({
+      name,
+      email,
+      password: hash,
+      role,
+      status: true,
+      salt,
+    });
 
     try {
       await this.userRepository.save(newUser);
       delete newUser.password;
       delete newUser.salt;
+
+      newUser.confirmationToken = jwt.sign(
+        { userId: newUser.id, salt: newUser.salt },
+        jwtSecret,
+        { expiresIn: '2 days' },
+      );
+
+      await this.userRepository.save(newUser);
       return newUser;
     } catch (error) {
-      const errorMessage = `Error to save on database! ${error.message}`;
-      throw new InternalServerErrorException(errorMessage);
+      throw new InternalServerErrorException(
+        `Error to save on database! ${error.message}`,
+      );
     }
-  }
-
-  private async sendConfirmationEmail(user: User): Promise<void> {
-    const mail = {
-      to: user.email,
-      from: 'noreply@application.com',
-      subject: 'Email confirmation',
-      template: '/src/templates/email-confirmation.hbs',
-    };
-    await this.mailerService.sendMail(mail);
   }
 
   async checkCredentials(credentialsDto: CredentialsDto): Promise<User> {

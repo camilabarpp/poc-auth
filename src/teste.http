@@ -1,0 +1,36 @@
+http://localhost:3000/api/signUp?name=Camila
+
+### Get All users
+GET http://localhost:3000/api/signUp/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwNmQ4NTQzLWExY2EtNDY2ZC1hNjVlLTYwMGI3ZmRhOTcxNSIsImlhdCI6MTY4MjY4OTE1MywiZXhwIjoxNjgyNzA3MTUzfQ.BHdRwsY8g4pUYjlRRM6Pd79ESilZaSI1wuBejray8l4
+
+### Send POST request with json body
+POST http://localhost:3000/api/auth/send-recover-email
+Content-Type: application/json
+
+{
+  "email": "mila3@mail.com"
+}
+
+### Create a new admin
+POST http://localhost:3000/api/signUp/admin
+Content-Type: application/json
+
+{
+  "name": "Admin",
+  "email": "admin@mail.com",
+  "password": "admin",
+  "passwordConfirmation": "admin"
+}
+
+### Create a new admin
+POST http://localhost:3000/api/signUp/admin
+Content-Type: application/json
+
+{
+  "name": "User",
+  "email": "user@mail.com",
+  "password": "user",
+  "passwordConfirmation": "user"
+}

@@ -28,11 +28,11 @@ export class User {
   @ApiProperty({ description: 'The status of the person' })
   status: boolean;
 
-  @Column({ nullable: true, type: 'varchar', length: 64 })
+  @Column({ nullable: true, type: 'varchar', length: 200 })
   @ApiProperty({ description: 'The confirmationToken of the person' })
   confirmationToken: string;
 
-  @Column({ nullable: true, type: 'varchar', length: 64 })
+  @Column({ nullable: true, type: 'varchar' })
   @ApiProperty({ description: 'The recoverToken of the person' })
   recoverToken: string;
 

@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { QueryFailedExceptionFilter } from './exceptions/exceptions.filter';
 import { winstonConfig } from './configs/winston.config';
 import { WinstonModule } from 'nest-winston';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const logger = WinstonModule.createLogger(winstonConfig);
@@ -11,6 +12,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new QueryFailedExceptionFilter());
   app.setGlobalPrefix('api');
+  app.use(cookieParser());
+
   await app.listen(3000);
 }
 bootstrap().then(() => 'Application started');
