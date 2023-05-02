@@ -11,7 +11,7 @@ export class SendMailController {
   ): Promise<{ message: string }> {
     await this.sendMailService.sendRecoverPasswordEmail(email);
     return {
-      message: 'It was sent an email to recover your password',
+      message: 'An email has been sent to recover your password.',
     };
   }
 

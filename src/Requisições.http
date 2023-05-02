@@ -28,7 +28,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwNmQ4NTQzL
 ### Create a new admin
 POST http://localhost:3000/api/signUp/admin
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwNmQ4NTQzLWExY2EtNDY2ZC1hNjVlLTYwMGI3ZmRhOTcxNSIsImlhdCI6MTY4MzAzNjE4OCwiZXhwIjoxNjgzMDU0MTg4fQ.FpZFEyrsp1g-6Qach5bKJIvMr0ofXoJqBNiHhac_MFw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZhODI0NzgyLWE4NGEtNGQ1Yi05ODVkLTJkMTA4MzdjMGQ5NCIsImlhdCI6MTY4MzA0MDk5NywiZXhwIjoxNjgzMDU4OTk3fQ.-AkgN9Ki_e9PrcowpUkaoHjIoRZNsTMJWdZeQi7OLf4
 
 {
   "name": "Teste",
@@ -49,6 +49,12 @@ Content-Type: application/json
 ### Me
 GET http://localhost:3000/api/auth/me
 Content-Type: application/json
-{
+
+
+### Delete a user
+DELETE http://localhost:3000/api/signUp/806d8543-a1ca-466d-a65e-600b7fda9715
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZhODI0NzgyLWE4NGEtNGQ1Yi05ODVkLTJkMTA4MzdjMGQ5NCIsImlhdCI6MTY4MzA0MDk5NywiZXhwIjoxNjgzMDU4OTk3fQ.-AkgN9Ki_e9PrcowpUkaoHjIoRZNsTMJWdZeQi7OLf4
+
 
 

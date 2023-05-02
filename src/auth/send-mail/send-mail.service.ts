@@ -27,7 +27,7 @@ export class SendMailService {
     const mail = {
       to: user.email,
       from: 'noreply@application.com',
-      subject: 'Recover password',
+      subject: 'Redefinição de senha',
       template: 'recover-password',
       context: {
         token: user.recoverToken,

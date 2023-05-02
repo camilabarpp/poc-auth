@@ -8,8 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -21,27 +19,13 @@ import { UserUpdateDto } from './dto/user-update-dto';
 import { GetUser } from '../../auth/get-user.decorator';
 import { User } from './entities/user.entity';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
-import { Response, Request } from 'express';
 import { RolesGuard } from '../../auth/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
+
 @Controller('signUp')
-@UseGuards(AuthGuard(), RolesGuard)
+// @UseGuards(AuthGuard(), RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @Get('cookie')
-  getHello(@Res() res: Response, @Req() req: Request): void {
-    // Define o cookie
-    res.cookie('nomeDoCookie', 'valorDoCookie', {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    });
-
-    // Envia o cookie para o navegador
-    req.cookies.cookie.expires = true;
-
-    res.send('Cookie definido com sucesso!');
-  }
 
   @Get()
   @Role(UserRole.ADMIN)
