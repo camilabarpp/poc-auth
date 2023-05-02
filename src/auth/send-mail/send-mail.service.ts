@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../../user/entities/user.entity';
+import { User } from '../../app/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { UserService } from '../../user/user.service';
+import { UserService } from '../../app/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
 import * as jwt from 'jsonwebtoken';

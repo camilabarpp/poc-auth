@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/user-create-dto';
 import { UserRole } from './entities/user-enum';
 import * as bcrypt from 'bcrypt';
-import { CredentialsDto } from '../auth/dto/credentials-dto';
+import { CredentialsDto } from '../../auth/dto/credentials-dto';
 import { UserUpdateDto } from './dto/user-update-dto';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -100,16 +100,9 @@ export class UserService {
         createUserDto,
         UserRole.USER,
       );
-      const mail = {
-        to: user.email,
-        from: 'noreply@application.com',
-        subject: 'Email confirmation',
-        template: 'email-confirmation',
-        context: {
-          token: user.confirmationToken,
-        },
-      };
-      await this.mailerService.sendMail(mail);
+
+      await this.sendConfirmationEmail(user.email, user.name);
+
       return user;
     }
   }
@@ -118,26 +111,37 @@ export class UserService {
     if (createUserDto.password != createUserDto.passwordConfirmation) {
       throw new UnprocessableEntityException('Passwords do not match');
     } else {
-      return this.createAndEncryptPassword(createUserDto, UserRole.ADMIN);
+      const admin = await this.createAndEncryptPassword(
+        createUserDto,
+        UserRole.ADMIN,
+      );
+
+      await this.sendConfirmationEmail(admin.email, admin.name);
+
+      return admin;
     }
   }
 
-  async deleteUser(id: string) {
-    const result = await this.findUserById(id);
+  private async sendConfirmationEmail(
+    email: string,
+    name: string,
+  ): Promise<void> {
+    const mail = {
+      to: email,
+      from: 'noreply@application.com',
+      subject: 'Bem vindo(a) ao NQ',
+      template: 'welcome-email',
+      context: {
+        name,
+      },
+    };
 
-    // if (!result) {
-    //   throw new NotFoundException(`No user was found with the given ID: ${id}`);
-    // } else {
-    // }
+    await this.mailerService.sendMail(mail);
+  }
+
+  async deleteUser(id: string) {
+    await this.findUserById(id);
     await this.userRepository.delete(id);
-    // await this.findUserById(id);
-    // try {
-    //   return await this.userRepository.delete(id);
-    // } catch (error) {
-    //   throw new InternalServerErrorException(
-    //     'No user was found with the given ID: ${id}',
-    //   );
-    // }
   }
 
   async changePassword(id: string, password: string) {

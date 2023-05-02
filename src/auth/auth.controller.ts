@@ -10,11 +10,11 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CredentialsDto } from './dto/credentials-dto';
-import { User } from '../user/entities/user.entity';
+import { User } from '../app/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from './get-user.decorator';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { UserRole } from '../user/entities/user-enum';
+import { UserRole } from '../app/user/entities/user-enum';
 
 @Controller('auth')
 export class AuthController {

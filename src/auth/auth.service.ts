@@ -4,13 +4,11 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UserService } from '../app/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../user/entities/user.entity';
+import { User } from '../app/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MailerService } from '@nestjs-modules/mailer';
-import * as jwt from 'jsonwebtoken';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CredentialsDto } from './dto/credentials-dto';
 
@@ -21,50 +19,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly registerService: UserService,
     private jwtService: JwtService,
-    private mailerService: MailerService,
   ) {}
-
-  // async sendRecoverPasswordEmail(email: string): Promise<void> {
-  //   const user = await this.findUserByEmail(email);
-  //
-  //   const recoverToken = this.generateRecoverToken(user);
-  //
-  //   await this.saveUserWithRecoverToken(user, recoverToken);
-  //
-  //   const mail = {
-  //     to: user.email,
-  //     from: 'noreply@application.com',
-  //     subject: 'Recover password',
-  //     template: 'recover-password',
-  //     context: {
-  //       token: user.recoverToken,
-  //       username: user.name,
-  //     },
-  //   };
-  //   await this.mailerService.sendMail(mail);
-  // }
-
-  // private async findUserByEmail(email: string): Promise<User> {
-  //   const user = await this.userRepository.findOne({ where: { email } });
-  //   if (!user) {
-  //     throw new NotFoundException('There is no user with this email');
-  //   }
-  //   return user;
-  // }
-  //
-  // private generateRecoverToken(user: User): string {
-  //   return jwt.sign({ id: user.id, email: user.email }, 'super-secret', {
-  //     expiresIn: '2m',
-  //   });
-  // }
-  //
-  // private async saveUserWithRecoverToken(
-  //   user: User,
-  //   recoverToken: string,
-  // ): Promise<void> {
-  //   user.recoverToken = recoverToken;
-  //   await this.userRepository.save(user);
-  // }
 
   async signIn(credentialsDto: CredentialsDto) {
     const user = await this.registerService.checkCredentials(credentialsDto);

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { UserService } from '../user/user.service';
+import { UserService } from '../app/user/user.service';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../user/entities/user.entity';
+import { User } from '../app/user/entities/user.entity';
 import { SendMailService } from './send-mail/send-mail.service';
 import { SendMailController } from './send-mail/send-mail.controller';
 

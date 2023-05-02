@@ -15,14 +15,14 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/user-create-dto';
 import { ReturnUserDto } from './dto/user-return-dto';
-import { Role } from '../auth/role.decorator';
+import { Role } from '../../auth/role.decorator';
 import { UserRole } from './entities/user-enum';
 import { UserUpdateDto } from './dto/user-update-dto';
-import { GetUser } from '../auth/get-user.decorator';
+import { GetUser } from '../../auth/get-user.decorator';
 import { User } from './entities/user.entity';
 import { FindUsersQueryDto } from './dto/find-users-query.dto';
 import { Response, Request } from 'express';
-import { RolesGuard } from '../auth/roles.guard';
+import { RolesGuard } from '../../auth/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 @Controller('signUp')
 @UseGuards(AuthGuard(), RolesGuard)

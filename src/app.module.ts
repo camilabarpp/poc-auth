@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
+import { UserModule } from './app/user/user.module';
 import { winstonConfig } from './configs/winston.config';
 import { WinstonModule } from 'nest-winston';
 import { LoggerInterceptor } from './interceptors/logger.interceptor';
