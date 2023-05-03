@@ -87,9 +87,9 @@ export class SendMailService {
     }
   }
   private isTokenExpired(tokenExpiration: number, tokenType: string): boolean {
-    const now = Math.floor(Date.now() / 1000); // obtém a data atual em segundos
+    const now = Math.floor(Date.now() / 1000);
     if (tokenType === 'confirmation') {
-      const confirmationExpirationInSeconds = 2 * 24 * 60 * 60; // 2 dias em segundos
+      const confirmationExpirationInSeconds = 2;
       return now - tokenExpiration > confirmationExpirationInSeconds;
     }
     return false;

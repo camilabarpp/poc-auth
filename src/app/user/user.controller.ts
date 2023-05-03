@@ -23,7 +23,7 @@ import { RolesGuard } from '../../auth/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('signUp')
-// @UseGuards(AuthGuard(), RolesGuard)
+@UseGuards(AuthGuard(), RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
