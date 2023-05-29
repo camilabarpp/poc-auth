@@ -17,7 +17,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       port: 3306,
       username: 'root',
       password: 'root',
-      database: 'poc-auth',
+      database: 'poc-auth-db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),

@@ -1,3 +1,13 @@
+
+git clone https://github.com/camilabarpp/poc-auth.git
+
+npm i
+
+Crie um schema no workbenk camado 'poc-auth' e logo após isso rode este script
+
+npm run start
+
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
