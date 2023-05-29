@@ -1,83 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h1>POC-AUTH</h1>
 
-git clone https://github.com/camilabarpp/poc-auth.git
+  <p>Este é um projeto de prova de conceito que demonstra a autenticação com JWT usando o NestJS.</p>
+  
+  <p>Para obter este repositório, rode este comando:</p>
+  
+  ```bash
+  git clone https://github.com/camilabarpp/poc-auth.git
+  ```
+  *********************************************************************************************************************************************************************
 
-npm i
+  # Configuração
 
-Crie um schema no workbenk camado 'poc-auth' e logo após isso rode este script
+  <p>Antes de executar o projeto, é necessário configurar algumas variáveis de ambiente. Certifique-se de ter o Node.js e o Docker instalados em seu sistema.</p>
 
-npm run start
+  ```bash
+  npm i
 
+  docker compose up --build
+  ```
 
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+  ``` bash
+  npm run start
+  ```
+  *********************************************************************************************************************************************************************
+  
+  # Endpoints
+  
+  ## Fazer login e obter um token
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+  - **Método**: POST
+  - **URL**: http://localhost:3000/api/auth/signIn
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "email": "admin@mail.com",
+      "password": "admin"
+  }
+  ```
+  
+  *********************************************************************************************************************************************************************
+  
+  ## Criar um admin
 
-## Description
+  - **Método**: POST
+  - **URL**: http://localhost:3000/api/signUp/admin/
+  - **Autorização**: Bearer Token
+  - **Token**: `<token>`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "name": "Camila Barpp",
+      "email": "milabarpp@mail.com",
+      "password": "Senha.123",
+      "passwordConfirmation": "Senha.123"
+  }
+  ```
+  ### Observação:
+  A senha deve seguir o seguinte formato:
+  - Pelo menos 1 dígito (0-9)
+  - Pelo menos 1 letra minúscula (a-z)
+  - Pelo menos 1 letra maiúscula (A-Z)
+  - Pelo menos 1 caractere especial (-_.!@#$%^&*)
+  
+  *********************************************************************************************************************************************************************
 
-## Installation
+  ## Criar um user
 
-```bash
-$ npm install
-```
+  - **Método**: POST
+  - **URL**: http://localhost:3000/api/signUp/user/
 
-## Running the app
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "name": "Camila Barpp",
+      "email": "milabarpp@mail.com",
+      "password": "Senha.123",
+      "passwordConfirmation": "Senha.123"
+  }
+  ```
+  ### Observação:
+  A senha deve seguir o seguinte formato:
+  - Pelo menos 1 dígito (0-9)
+  - Pelo menos 1 letra minúscula (a-z)
+  - Pelo menos 1 letra maiúscula (A-Z)
+  - Pelo menos 1 caractere especial (-_.!@#$%^&*)
+  
+  *********************************************************************************************************************************************************************
+  
+  ## Alterar senha do usuário
 
-```bash
-# development
-$ npm run start
+  - **Método**: PATCH
+  - **URL**: http://localhost:3000/api/auth/{id}/change-password
+  - **Autorização**: Bearer Token
+  - **Token**: `<token>`
 
-# watch mode
-$ npm run start:dev
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "password": "Teste@123",
+      "passwordConfirmation": "Teste@123"
+  }
+  ```
+  *********************************************************************************************************************************************************************
 
-# production mode
-$ npm run start:prod
-```
+  ## Atualizar um user/admin
 
-## Test
+  - **Método**: PATCH
+  - **URL**: http://localhost:3000/api/signUp/{id}
 
-```bash
-# unit tests
-$ npm run test
+  - **Autorização**: Bearer Token
+  - **Token**: `<token>`
 
-# e2e tests
-$ npm run test:e2e
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "name": "Camila Barpp"
+  }
+  ```
+  *********************************************************************************************************************************************************************
 
-# test coverage
-$ npm run test:cov
-```
+  ## Alterar senha do usuario com o token de recuperação
 
-## Support
+  - **Método**: PATCH
+  - **URL**: http://localhost:3000/api/auth/reset-password/{id}
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  - **Autorização**: Bearer Token
+  - **Token**: `<token>`
 
-## Stay in touch
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "password": "Teste@123",
+      "passwordConfirmation": "Teste@123"
+  }
+  ```
+  *********************************************************************************************************************************************************************
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+  ## Enviar email de recuperação de senha
 
-## License
+  - **Método**: POST
+  - **URL**: http://localhost:3000/api/send-mail/send-recover-email
 
-Nest is [MIT licensed](LICENSE).
+  - **Autorização**: Bearer Token
+  - **Token**: `<token>`
+
+  **Corpo da requisição (JSON):**
+  ```json
+  {
+      "email": "milabarpp@mail.com"
+  }
+  ```
+  *********************************************************************************************************************************************************************
+
+  ## Listar todos usuarios
+
+  - **Método**: GET
+  - **URL**: http://localhost:3000/api/signUp/
+
+  *********************************************************************************************************************************************************************
+  
+  ## Obter os dados do usuario pelo token
+
+  - **Método**: GET
+  - **URL**: http://localhost:3000/api/auth/me
+
+  - **Autorização**: Bearer Token
+  - **Token**: `<token>`
+
+  *********************************************************************************************************************************************************************
+    
+  ## Obter usuário pelo id
+
+  - **Método**: GET
+  - **URL**: http://localhost:3000/api/signUp/{id}
+
+  *********************************************************************************************************************************************************************
+      
+  ## Obter usuario por criterios
+
+  - **Método**: GET
+  - **URL**: http://localhost:3000/api/signUp?name=Cam
+
+  *********************************************************************************************************************************************************************
+    
+  ## Deletar um usuário
+
+  - **Método**: DELETE
+  - **URL**: http://localhost:3000/api/signUp/{id}
+
+  *********************************************************************************************************************************************************************
+  
+  # Funcionalidades
+
+  <ul>
+    <li>Autenticação com JWT</li>
+    <li>Envio de e-mail ao cadastrar um usuário</li>
+    <li>Redefinição de senha</li>
+    <li>Alteração de senha</li>
+  </ul>
+
+  <h2>Estrutura do Projeto</h2>
+
+  <p>O projeto segue a estrutura padrão do NestJS e possui os seguintes diretórios principais:</p>
+
+  <ul>
+    <li><code>src/app/user</code>: Contém o módulo e os controladores relacionados às operações com pessoas.</li>
+    <li><code>src/auth</code>: Contém o módulo e os controladores relacionados à autenticação.</li>
+    <li><code>src/configs</code>: Contém as configurações do mailer e winston.</li>
+    <li><code>src/exceptions</code>: Contém o filtro de exceptions.</li>
+    <li><code>src/helpers</code>: Contém o regex e mensagem de erro de senha.</li>
+  </ul>
+
+  <h2>Tecnologias Utilizadas</h2>
+
+  <ul>
+    <li>NestJS: Framework para construção de aplicativos Node.js escaláveis e eficientes.</li>
+    <li>TypeORM: ORM (Object-Relational Mapping) para trabalhar com bancos de dados relacionais.</li>
+    <li>JWT (JSON Web Tokens): Mecanismo de autenticação baseado em tokens.</li>
+    <li>Docker: Plataforma de contêineres que facilita a criação e o gerenciamento de ambientes isolados.</li>
+    <li>Winston: Biblioteca para registro de logs em Node.js.</li>
+    <li>Class Validator: Biblioteca para validação de dados em classes e objetos.</li>
+    <li>MySQL: Banco de dados relacional utilizado no projeto.</li>
+  </ul>
+
+  <h2>Contribuição</h2>
+
+  <p>Contribuições são bem-vindas! Se você quiser contribuir para o projeto, sinta-se à vontade para abrir uma issue ou enviar um pull request.</p>
+</body>
+</html>
+
